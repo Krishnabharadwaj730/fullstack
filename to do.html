@@ -1,0 +1,1635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Taskmaster Ai</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Global Styles */
+        :root {
+            --primary-blue: #2564cf;
+            --hover-blue: #106ebe;
+            --bg-color: #faf9f8;
+            --text-color: #323130;
+            --border-color: #edebe9;
+            --completed-color: #a19f9d;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 300px;
+            background-color: white;
+            border-right: 1px solid var(--border-color);
+            padding: 20px;
+        }
+
+        .sidebar-header {
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h1 {
+            font-size: 20px;
+            margin: 0;
+            color: var(--text-color);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            color: var(--text-color);
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            background-color: var(--bg-color);
+        }
+
+        .nav-item.active {
+            background-color: #c7e0f4;
+            color: var(--primary-blue);
+        }
+
+        .nav-item i {
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            background-color: white;
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .content-header h2 {
+            font-size: 24px;
+            margin: 0;
+        }
+
+        /* Task Input Styles */
+        .task-input-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .task-input {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 16px;
+            outline: none;
+        }
+
+        .task-input:focus {
+            border-bottom: 2px solid var(--primary-blue);
+        }
+
+        .add-task-btn {
+            background: none;
+            border: none;
+            color: var(--primary-blue);
+            cursor: pointer;
+            font-size: 16px;
+            padding: 8px;
+        }
+
+        /* Task List Styles */
+        .task-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            margin-right: 12px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .task-checkbox.checked {
+            background-color: var(--primary-blue);
+            border-color: var(--primary-blue);
+        }
+
+        .task-checkbox.checked::after {
+            content: '✓';
+            color: white;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 12px;
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-text {
+            font-size: 16px;
+        }
+
+        .task-text.completed {
+            color: var(--completed-color);
+            text-decoration: line-through;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .task-action-btn {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 4px;
+            opacity: 0.6;
+        }
+
+        .task-action-btn:hover {
+            opacity: 1;
+        }
+
+        /* Login/Register Styles */
+        .auth-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .auth-form input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .auth-form button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 16px;
+        }
+
+        .auth-form button:hover {
+            background-color: var(--hover-blue);
+        }
+
+        /* AI Summary Styles */
+        #aiSummary {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e7f3ff;
+            border-radius: 4px;
+            color: var(--primary-blue);
+        }
+
+        .ai-recommendation {
+            color: var(--primary-blue);
+            font-style: italic;
+            margin-top: 5px;
+        }
+
+        /* Category Tags */
+        .category-tag {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        .category-work { background-color: #e7f3ff; color: var(--primary-blue); }
+        .category-health { background-color: #e8f5e9; color: #2e7d32; }
+        .category-study { background-color: #fff3e0; color: #f57c00; }
+        .category-personal { background-color: #f3e5f5; color: #7b1fa2; }
+
+        /* Priority Level Styles */
+        .priority-select {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            margin-right: 10px;
+            background-color: white;
+        }
+
+        .priority-high { color: #d13438; font-weight: bold; }
+        .priority-medium { color: #ffc107; font-weight: bold; }
+        .priority-low { color: #28a745; font-weight: bold; }
+
+        /* Login Streak Styles */
+        .streak-container {
+            background-color: #e7f3ff;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: var(--primary-blue);
+        }
+
+        .streak-fire {
+            font-size: 20px;
+            margin-left: 8px;
+            animation: flame 0.8s ease-in-out infinite alternate;
+        }
+
+        @keyframes flame {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+
+        /* Due Date and Reminder Styles */
+        .task-meta {
+            display: flex;
+            gap: 12px;
+            margin-top: 4px;
+            font-size: 12px;
+            color: var(--completed-color);
+        }
+
+        .task-meta i {
+            margin-right: 4px;
+        }
+
+        /* Important and My Day Indicators */
+        .task-indicators {
+            display: flex;
+            gap: 8px;
+            margin-left: 8px;
+        }
+
+        .task-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .indicator-important {
+            background-color: #d13438;
+        }
+
+        .indicator-my-day {
+            background-color: #107c10;
+        }
+
+        body.dark-mode {
+            background: #18191a;
+            color: #f5f6fa;
+        }
+        body.dark-mode .sidebar,
+        body.dark-mode .main-content,
+        body.dark-mode .auth-container {
+            background: #242526;
+            color: #f5f6fa;
+        }
+        body.dark-mode .task-item {
+            border-bottom: 1px solid #444;
+        }
+        body.dark-mode .priority-select,
+        body.dark-mode .task-input {
+            background: #18191a;
+            color: #f5f6fa;
+            border-color: #444;
+        }
+
+        @media (max-width: 700px) {
+            .container { flex-direction: column; }
+            .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color);}
+            .main-content { padding: 10px; }
+        }
+  
+
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    
+    <!-- Login Container -->
+    <div id="loginContainer" class="auth-container">
+        <h2>Sign in to To Do</h2>
+        <form class="auth-form" id="loginForm">
+            <input type="text" id="loginUsername" placeholder="Username" required>
+            <input type="password" id="loginPassword" placeholder="Password" required>
+            <button type="submit">Sign in</button>
+        </form>
+        <p style="text-align: center; margin-top: 16px;">
+            <a href="#" id="showRegister" style="color: var(--primary-blue); text-decoration: none;">Create account</a>
+        </p>
+    </div>
+
+    <!-- Register Container -->
+    <div id="registerContainer" class="auth-container" style="display: none;">
+        <h2>Create account</h2>
+        <form class="auth-form" id="registerForm">
+            <input type="text" id="regUsername" placeholder="Choose a username" required>
+            <input type="password" id="regPassword" placeholder="Create a password" required>
+            <input type="password" id="regConfirmPassword" placeholder="Confirm password" required>
+            <button type="submit">Create account</button>
+        </form>
+        <p style="text-align: center; margin-top: 16px;">
+            <a href="#" id="showLogin" style="color: var(--primary-blue); text-decoration: none;">Already have an account? Sign in</a>
+        </p>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="appContainer" class="container" style="display: none;">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1>Taskmaster</h1>
+                 <div id="userDisplay" style="font-size:14px; color:var(--primary-blue); margin-top:4px;"></div>
+            </div>
+            <a href="#" class="nav-item active" data-view="my-day">
+                <i class="fas fa-sun"></i> My day
+            </a>
+            <a href="#" class="nav-item" data-view="important">
+                <i class="fas fa-star"></i> Important
+            </a>
+            <a href="#" class="nav-item" data-view="planned">
+                <i class="fas fa-calendar"></i> Planned
+            </a>
+            <a href="#" class="nav-item" data-view="tasks">
+                <i class="fas fa-tasks"></i> Tasks
+            </a>
+            <div style="margin-top: 20px;">
+                <button id="logoutBtn" class="nav-item" style="width: 100%; text-align: left; background: none; border: none; cursor: pointer;">
+                    <i class="fas fa-sign-out-alt"></i> Sign out
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center;">
+                <input type="text" id="searchInput" placeholder="Search tasks..." style="flex:1; padding: 8px;">
+                <select id="filterStatus" class="priority-select">
+                    <option value="all">All</option>
+                    <option value="completed">Completed</option>
+                    <option value="incomplete">Incomplete</option>
+                </select>
+                <button id="toggleDarkMode" class="add-task-btn" title="Toggle Dark Mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button id="exportBtn" class="add-task-btn" title="Export Tasks">
+                    <i class="fas fa-file-export"></i>
+                </button>
+                <input type="file" id="importInput" style="display:none;">
+                <button id="importBtn" class="add-task-btn" title="Import Tasks">
+                    <i class="fas fa-file-import"></i>
+                </button>
+            </div>
+            
+
+            <div class="content-header">
+                <h2 id="currentView"> Today</h2>
+                <div class="task-input-container">
+                    <input type="text" id="taskInput" class="task-input" placeholder="Add a task">
+                    <select class="priority-select" id="prioritySelect">
+                        <option value="low">Low Priority</option>
+                        <option value="medium">Medium Priority</option>
+                        <option value="high">High Priority</option>
+                    </select>
+                    <input type="date" id="dueDateInput" class="priority-select" style="width: 140px;">
+                    <input type="text" id="tagInput" class="priority-select" placeholder="Tags (comma separated)" style="width: 140px;">
+                    <select id="recurringInput" class="priority-select" style="width: 120px;">
+                        <option value="">No Repeat</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                    </select>
+                    <input type="time" id="reminderInput" class="priority-select" style="width: 120px;" placeholder="Reminder">
+                    <button id="addTaskBtn" class="add-task-btn">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="streak-container">
+                <span id="loginStreak">Login Streak: 0 days</span>
+                <span class="streak-fire">🔥</span>
+            </div>
+
+            <ul id="taskList" class="task-list"></ul>
+            
+            <div id="aiSummary"></div>
+        </div>
+    </div>
+
+    <script>
+        // User Authentication
+        let currentUser = null;
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        let tasks = [];
+        let currentView = 'my-day';
+
+        // Show/Hide Containers
+        function showContainer(containerId) {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('registerContainer').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'none';
+            document.getElementById(containerId).style.display = containerId === 'appContainer' ? 'flex' : 'block';
+        }
+
+        // Authentication Event Listeners
+        document.getElementById('showRegister').addEventListener('click', () => showContainer('registerContainer'));
+        document.getElementById('showLogin').addEventListener('click', () => showContainer('loginContainer'));
+
+        // Login Handler
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            const userIndex = users.findIndex(u => u.username === username && u.password === password);
+            if (userIndex !== -1) {
+                currentUser = users[userIndex];
+                tasks = currentUser.tasks || [];
+                updateLoginStreak(currentUser);
+                showContainer('appContainer');
+              document.getElementById('userDisplay').innerHTML = `👤 <b>${currentUser.username}</b>`;
+                renderTasks();
+                updateAIRecommendations();
+            } else {
+                alert('Invalid username or password');
+            }
+        });
+
+        // Register Handler
+        document.getElementById('registerForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('regUsername').value;
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+
+            if (users.some(user => user.username === username)) {
+                alert('Username already exists');
+                return;
+            }
+
+            users.push({
+                username,
+                password,
+                tasks: [],
+                loginStreak: 0,
+                lastLogin: null
+            });
+            localStorage.setItem('users', JSON.stringify(users));
+            showContainer('loginContainer');
+        });
+
+        // Logout Handler
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            if (currentUser) {
+                const userIndex = users.findIndex(u => u.username === currentUser.username);
+                if (userIndex !== -1) {
+                    users[userIndex].tasks = tasks;
+                    localStorage.setItem('users', JSON.stringify(users));
+                }
+            }
+            currentUser = null;
+            tasks = [];
+            showContainer('loginContainer');
+        });
+
+        // Navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                if (e.currentTarget.dataset.view) {
+                    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                    e.currentTarget.classList.add('active');
+                    currentView = e.currentTarget.dataset.view;
+                    document.getElementById('currentView').textContent = e.currentTarget.textContent.trim();
+                    renderTasks();
+                }
+            });
+        });
+
+        // Login Streak Management
+        function updateLoginStreak(user) {
+            const now = new Date();
+            const today = now.toDateString();
+            
+            if (!user.lastLogin) {
+                user.loginStreak = 1;
+            } else {
+                const lastLogin = new Date(user.lastLogin);
+                const dayDiff = Math.floor((now - lastLogin) / (1000 * 60 * 60 * 24));
+                
+                if (dayDiff === 1) {
+                    user.loginStreak = (user.loginStreak || 0) + 1;
+                } else if (dayDiff > 1) {
+                    user.loginStreak = 1;
+                }
+            }
+            
+            user.lastLogin = today;
+            updateStreakDisplay(user.loginStreak);
+        }
+
+        function updateStreakDisplay(streak) {
+            const streakElement = document.getElementById('loginStreak');
+            streakElement.textContent = `Login Streak: ${streak} day${streak !== 1 ? 's' : ''}`;
+        }
+
+        // Task Management
+        function addTask() {
+            const text = document.getElementById('taskInput').value.trim();
+            const priority = document.getElementById('prioritySelect').value;
+            
+            if (text && currentUser) {
+                const dueDate = document.getElementById('dueDateInput').value;
+                const tags = document.getElementById('tagInput').value.split(',').map(t => t.trim()).filter(Boolean);
+                const recurring = document.getElementById('recurringInput').value;
+                const reminder = document.getElementById('reminderInput').value;
+
+                const newTask = {
+                    id: Date.now(),
+                    text,
+                    completed: false,
+                    important: false,
+                    myDay: currentView === 'my-day',
+                    priority,
+                    dueDate: dueDate ? new Date(dueDate).toISOString() : null,
+                    tags,
+                    recurring,
+                    reminder,
+                    created: new Date().toISOString()
+                };
+                tasks.push(newTask);
+                document.getElementById('taskInput').value = '';
+                document.getElementById('prioritySelect').value = 'low';
+                renderTasks();
+                saveTasks();
+                analyzeTask(tasks.length - 1, text);
+                updateAIRecommendations();
+                scheduleReminder(newTask);
+            }
+        }
+
+        function toggleTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.completed = !task.completed;
+                renderTasks();
+                saveTasks();
+                updateAIRecommendations();
+                if (task.completed && task.recurring) {
+                    let nextDate = new Date(task.dueDate || new Date());
+                    if (task.recurring === 'daily') nextDate.setDate(nextDate.getDate() + 1);
+                    if (task.recurring === 'weekly') nextDate.setDate(nextDate.getDate() + 7);
+                    if (task.recurring === 'monthly') nextDate.setMonth(nextDate.getMonth() + 1);
+                    tasks.push({
+                        ...task,
+                        id: Date.now(),
+                        completed: false,
+                        dueDate: nextDate.toISOString(),
+                        created: new Date().toISOString()
+                    });
+                }
+            }
+        }
+
+        function toggleImportant(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.important = !task.important;
+                renderTasks();
+                saveTasks();
+            }
+        }
+
+        function toggleMyDay(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.myDay = !task.myDay;
+                renderTasks();
+                saveTasks();
+            }
+        }
+
+        function deleteTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            renderTasks();
+            saveTasks();
+            updateAIRecommendations();
+        }
+
+        function saveTasks() {
+            if (currentUser) {
+                const userIndex = users.findIndex(u => u.username === currentUser.username);
+                if (userIndex !== -1) {
+                    users[userIndex].tasks = tasks;
+                    localStorage.setItem('users', JSON.stringify(users));
+                }
+            }
+        }
+
+        // AI Recommendations
+        function updateAIRecommendations() {
+            const aiSummary = document.getElementById('aiSummary');
+            const incomplete = tasks.filter(task => !task.completed);
+            let highCount = incomplete.filter(task => task.priority === 'high').length;
+            let mediumCount = incomplete.filter(task => task.priority === 'medium').length;
+            let lowCount = incomplete.filter(task => task.priority === 'low').length;
+            let suggestions = [];
+
+            // Priority-based suggestions
+            if (highCount > 0)
+                suggestions.push(`⚠️ You have ${highCount} high-priority pending task${highCount > 1 ? 's' : ''} that need immediate attention!`);
+            if (mediumCount > 0)
+                suggestions.push(`You have ${mediumCount} medium-priority pending task${mediumCount > 1 ? 's' : ''}.`);
+            if (lowCount > 0)
+                suggestions.push(`You have ${lowCount} lower-priority pending task${lowCount > 1 ? 's' : ''}.`);
+
+            const allTaskTexts = tasks.map(task => task.text.toLowerCase());
+            
+            // Enhanced category detection with more keywords
+            const categories = {
+                work: ['meeting', 'project', 'deadline', 'report', 'presentation', 'email', 'client', 'work', 'office', 'business', 'conference', 'interview'],
+                health: ['exercise', 'gym', 'workout', 'run', 'fitness', 'meditation', 'yoga', 'health', 'diet', 'nutrition', 'sleep', 'doctor', 'appointment'],
+                study: ['study', 'homework', 'assignment', 'exam', 'research', 'read', 'book', 'course', 'class', 'lecture', 'notes', 'learning', 'education'],
+                personal: ['shopping', 'clean', 'cook', 'laundry', 'groceries', 'bills', 'family', 'personal', 'home', 'house', 'apartment', 'repair', 'maintenance'],
+                reading: ['read', 'book', 'novel', 'literature', 'author', 'story', 'fiction', 'non-fiction', 'magazine', 'article', 'blog', 'comic', 'manga'],
+                entertainment: ['movie', 'film', 'watch', 'series', 'show', 'tv', 'video', 'game', 'play', 'music', 'concert', 'theater', 'performance'],
+                travel: ['travel', 'trip', 'vacation', 'holiday', 'flight', 'hotel', 'booking', 'reservation', 'destination', 'tour', 'sightseeing', 'adventure'],
+                finance: ['money', 'budget', 'finance', 'investment', 'savings', 'bank', 'account', 'bill', 'payment', 'tax', 'insurance', 'mortgage', 'loan']
+            };
+
+            // Track user interests based on task categories
+            let userInterests = {};
+            for (const [category, keywords] of Object.entries(categories)) {
+                const categoryTasks = allTaskTexts.filter(text => 
+                    keywords.some(keyword => text.includes(keyword))
+                );
+                userInterests[category] = categoryTasks.length;
+            }
+
+            // Generate personalized recommendations based on interests
+            for (const [category, count] of Object.entries(userInterests)) {
+                if (count > 0) {
+                    switch(category) {
+                        case 'work':
+                            if (count >= 2) {
+                                suggestions.push(`Based on your work-related tasks, consider adding: "Follow up on previous meetings" or "Update project timeline".`);
+                            }
+                            break;
+                        case 'health':
+                            if (!allTaskTexts.some(text => text.includes('workout'))) {
+                                suggestions.push(`I notice you're interested in health. Consider adding a workout schedule to your tasks.`);
+                            }
+                            break;
+                        case 'study':
+                            if (count > 0) {
+                                suggestions.push(`For better study management, consider adding review sessions for your ${category} tasks.`);
+                            }
+                            break;
+                        case 'personal':
+                            if (count >= 2) {
+                                suggestions.push(`For personal tasks, don't forget to schedule some relaxation time.`);
+                            }
+                            break;
+                        case 'reading':
+                            // Advanced reading recommendations
+                            if (count > 0) {
+                                const readingPreferences = detectReadingPreferences(allTaskTexts);
+                                const bookRecommendations = getBookRecommendations(readingPreferences);
+                                suggestions.push(`Based on your interest in reading, I recommend: ${bookRecommendations.join(', ')}`);
+                            }
+                            break;
+                        case 'entertainment':
+                            if (count > 0) {
+                                const entertainmentPreferences = detectEntertainmentPreferences(allTaskTexts);
+                                const entertainmentRecommendations = getEntertainmentRecommendations(entertainmentPreferences);
+                                suggestions.push(`For entertainment, you might enjoy: ${entertainmentRecommendations.join(', ')}`);
+                            }
+                            break;
+                        case 'travel':
+                            if (count > 0) {
+                                const travelPreferences = detectTravelPreferences(allTaskTexts);
+                                const travelRecommendations = getTravelRecommendations(travelPreferences);
+                                suggestions.push(`For your travel plans, consider: ${travelRecommendations.join(', ')}`);
+                            }
+                            break;
+                        case 'finance':
+                            if (count > 0) {
+                                suggestions.push(`For financial planning, consider adding: "Review monthly budget" or "Set up automatic savings".`);
+                            }
+                            break;
+                    }
+                }
+            }
+
+            // Time-based pattern recognition
+            const completedTasks = tasks.filter(task => task.completed);
+            if (completedTasks.length > 0) {
+                const repeatingPatterns = completedTasks
+                    .map(task => task.text.toLowerCase())
+                    .filter((text, index, array) => array.indexOf(text) !== index);
+                
+                if (repeatingPatterns.length > 0) {
+                    suggestions.push(`I noticed you complete similar tasks regularly. Consider adding: "${repeatingPatterns[0]}" to your list.`);
+                }
+            }
+
+            // Contextual recommendations
+            const timeOfDay = new Date().getHours();
+            if (timeOfDay < 12 && !allTaskTexts.some(text => text.includes('morning'))) {
+                suggestions.push(`It's morning time. Consider adding morning routine tasks to your list.`);
+            } else if (timeOfDay >= 12 && timeOfDay < 17 && !allTaskTexts.some(text => text.includes('afternoon'))) {
+                suggestions.push(`It's afternoon. Good time to add some productive tasks.`);
+            } else if (timeOfDay >= 17 && !allTaskTexts.some(text => text.includes('evening'))) {
+                suggestions.push(`Evening is approaching. Consider adding some wind-down tasks.`);
+            }
+
+            // Seasonal recommendations
+            const month = new Date().getMonth();
+            if (month >= 11 || month <= 1) { // Winter
+                if (!allTaskTexts.some(text => text.includes('holiday') || text.includes('christmas'))) {
+                    suggestions.push(`It's winter season. Consider adding holiday preparation tasks.`);
+                }
+            } else if (month >= 2 && month <= 4) { // Spring
+                if (!allTaskTexts.some(text => text.includes('spring') || text.includes('garden'))) {
+                    suggestions.push(`It's spring season. Consider adding outdoor activities or spring cleaning tasks.`);
+                }
+            } else if (month >= 5 && month <= 7) { // Summer
+                if (!allTaskTexts.some(text => text.includes('summer') || text.includes('vacation'))) {
+                    suggestions.push(`It's summer season. Consider adding vacation planning or outdoor activities.`);
+                }
+            } else if (month >= 8 && month <= 10) { // Fall
+                if (!allTaskTexts.some(text => text.includes('fall') || text.includes('autumn'))) {
+                    suggestions.push(`It's fall season. Consider adding seasonal activities or preparation for winter.`);
+                }
+            }
+
+            aiSummary.innerText = suggestions.length > 0 ? "AI Recommendations: " + suggestions.join(" ") : "No AI recommendations available.";
+        }
+
+        // Advanced reading preference detection
+        function detectReadingPreferences(taskTexts) {
+            const preferences = {
+                genres: [],
+                authors: [],
+                themes: [],
+                difficulty: 'medium'
+            };
+            
+            // Genre detection
+            const genres = {
+                fantasy: ['fantasy', 'magic', 'wizard', 'dragon', 'mythical', 'supernatural'],
+                sciFi: ['sci-fi', 'science fiction', 'space', 'future', 'robot', 'alien', 'technology'],
+                mystery: ['mystery', 'detective', 'crime', 'thriller', 'suspense', 'investigation'],
+                romance: ['romance', 'love', 'relationship', 'dating', 'romantic'],
+                historical: ['historical', 'history', 'period', 'ancient', 'medieval', 'victorian'],
+                literary: ['literary', 'classic', 'award-winning', 'prize', 'literature'],
+                nonFiction: ['non-fiction', 'biography', 'memoir', 'self-help', 'educational', 'factual']
+            };
+            
+            for (const [genre, keywords] of Object.entries(genres)) {
+                if (taskTexts.some(text => keywords.some(keyword => text.includes(keyword)))) {
+                    preferences.genres.push(genre);
+                }
+            }
+            
+            // Author detection
+            const commonAuthors = [
+                'tolkien', 'rowling', 'king', 'austen', 'dickens', 'shakespeare', 'twain', 
+                'hemingway', 'fitzgerald', 'dostoevsky', 'tolstoy', 'hugo', 'dante', 'homer',
+                'asimov', 'bradbury', 'orwell', 'huxley', 'christie', 'doyle', 'poe'
+            ];
+            
+            for (const author of commonAuthors) {
+                if (taskTexts.some(text => text.includes(author))) {
+                    preferences.authors.push(author);
+                }
+            }
+            
+            // Theme detection
+            const themes = {
+                adventure: ['adventure', 'journey', 'quest', 'exploration', 'discovery'],
+                comingOfAge: ['coming of age', 'growing up', 'maturity', 'youth', 'teen'],
+                dystopian: ['dystopian', 'apocalypse', 'post-apocalyptic', 'society', 'government'],
+                philosophical: ['philosophical', 'philosophy', 'meaning', 'existence', 'consciousness'],
+                psychological: ['psychological', 'mind', 'mental', 'psychology', 'behavior']
+            };
+            
+            for (const [theme, keywords] of Object.entries(themes)) {
+                if (taskTexts.some(text => keywords.some(keyword => text.includes(keyword)))) {
+                    preferences.themes.push(theme);
+                }
+            }
+            
+            // Difficulty detection
+            if (taskTexts.some(text => text.includes('easy') || text.includes('simple') || text.includes('beginner'))) {
+                preferences.difficulty = 'easy';
+            } else if (taskTexts.some(text => text.includes('challenging') || text.includes('complex') || text.includes('advanced'))) {
+                preferences.difficulty = 'hard';
+            }
+            
+            return preferences;
+        }
+
+        // Get personalized book recommendations
+        function getBookRecommendations(preferences) {
+            const recommendations = [];
+            
+            // If no specific preferences, provide general recommendations
+            if (preferences.genres.length === 0 && preferences.authors.length === 0 && preferences.themes.length === 0) {
+                return [
+                    "The Alchemist by Paulo Coelho",
+                    "To Kill a Mockingbird by Harper Lee",
+                    "The Great Gatsby by F. Scott Fitzgerald"
+                ];
+            }
+            
+            // Genre-based recommendations
+            if (preferences.genres.includes('fantasy')) {
+                recommendations.push("The Name of the Wind by Patrick Rothfuss");
+                recommendations.push("Mistborn by Brandon Sanderson");
+            }
+            if (preferences.genres.includes('sciFi')) {
+                recommendations.push("Dune by Frank Herbert");
+                recommendations.push("The Martian by Andy Weir");
+            }
+            if (preferences.genres.includes('mystery')) {
+                recommendations.push("The Silent Patient by Alex Michaelides");
+                recommendations.push("Gone Girl by Gillian Flynn");
+            }
+            if (preferences.genres.includes('romance')) {
+                recommendations.push("The Notebook by Nicholas Sparks");
+                recommendations.push("Me Before You by Jojo Moyes");
+            }
+            if (preferences.genres.includes('historical')) {
+                recommendations.push("The Pillars of the Earth by Ken Follett");
+                recommendations.push("Wolf Hall by Hilary Mantel");
+            }
+            if (preferences.genres.includes('literary')) {
+                recommendations.push("The Goldfinch by Donna Tartt");
+                recommendations.push("A Little Life by Hanya Yanagihara");
+            }
+            if (preferences.genres.includes('nonFiction')) {
+                recommendations.push("Sapiens by Yuval Noah Harari");
+                recommendations.push("Educated by Tara Westover");
+            }
+            
+            // Author-based recommendations
+            if (preferences.authors.includes('tolkien')) {
+                recommendations.push("The Hobbit by J.R.R. Tolkien");
+                recommendations.push("The Lord of the Rings by J.R.R. Tolkien");
+            }
+            if (preferences.authors.includes('king')) {
+                recommendations.push("The Shining by Stephen King");
+                recommendations.push("It by Stephen King");
+            }
+            if (preferences.authors.includes('austen')) {
+                recommendations.push("Pride and Prejudice by Jane Austen");
+                recommendations.push("Emma by Jane Austen");
+            }
+            
+            // Theme-based recommendations
+            if (preferences.themes.includes('adventure')) {
+                recommendations.push("The Da Vinci Code by Dan Brown");
+                recommendations.push("The Three Musketeers by Alexandre Dumas");
+            }
+            if (preferences.themes.includes('dystopian')) {
+                recommendations.push("1984 by George Orwell");
+                recommendations.push("Brave New World by Aldous Huxley");
+            }
+            if (preferences.themes.includes('philosophical')) {
+                recommendations.push("The Stranger by Albert Camus");
+                recommendations.push("Thus Spoke Zarathustra by Friedrich Nietzsche");
+            }
+            
+            // Difficulty-based recommendations
+            if (preferences.difficulty === 'easy') {
+                recommendations.push("The Giver by Lois Lowry");
+                recommendations.push("Charlotte's Web by E.B. White");
+            } else if (preferences.difficulty === 'hard') {
+                recommendations.push("Ulysses by James Joyce");
+                recommendations.push("Infinite Jest by David Foster Wallace");
+            }
+            
+            // Remove duplicates and limit to 3 recommendations
+            return [...new Set(recommendations)].slice(0, 3);
+        }
+
+        // Entertainment preference detection
+        function detectEntertainmentPreferences(taskTexts) {
+            const preferences = {
+                types: [],
+                genres: [],
+                platforms: []
+            };
+            
+            // Type detection
+            const types = {
+                movie: ['movie', 'film', 'cinema', 'watch movie'],
+                series: ['series', 'show', 'tv', 'television', 'binge', 'episode'],
+                game: ['game', 'play game', 'video game', 'gaming', 'console'],
+                music: ['music', 'song', 'album', 'concert', 'playlist', 'artist']
+            };
+            
+            for (const [type, keywords] of Object.entries(types)) {
+                if (taskTexts.some(text => keywords.some(keyword => text.includes(keyword)))) {
+                    preferences.types.push(type);
+                }
+            }
+            
+            // Genre detection
+            const genres = {
+                action: ['action', 'adventure', 'thriller', 'exciting'],
+                comedy: ['comedy', 'funny', 'humor', 'laugh'],
+                drama: ['drama', 'emotional', 'serious', 'deep'],
+                horror: ['horror', 'scary', 'frightening', 'terrifying'],
+                documentary: ['documentary', 'documentary', 'real', 'factual', 'educational']
+            };
+            
+            for (const [genre, keywords] of Object.entries(genres)) {
+                if (taskTexts.some(text => keywords.some(keyword => text.includes(keyword)))) {
+                    preferences.genres.push(genre);
+                }
+            }
+            
+            // Platform detection
+            const platforms = {
+                netflix: ['netflix', 'streaming'],
+                amazon: ['amazon', 'prime'],
+                hulu: ['hulu'],
+                disney: ['disney', 'disney+'],
+                hbo: ['hbo', 'hbo max'],
+                youtube: ['youtube', 'youtube premium']
+            };
+            
+            for (const [platform, keywords] of Object.entries(platforms)) {
+                if (taskTexts.some(text => keywords.some(keyword => text.includes(keyword)))) {
+                    preferences.platforms.push(platform);
+                }
+            }
+            
+            return preferences;
+        }
+
+        // Get entertainment recommendations
+        function getEntertainmentRecommendations(preferences) {
+            const recommendations = [];
+            
+            // If no specific preferences, provide general recommendations
+            if (preferences.types.length === 0 && preferences.genres.length === 0) {
+                return [
+                    "Breaking Bad (TV Series)",
+                    "Inception (Movie)",
+                    "The Last of Us (Game)"
+                ];
+            }
+            
+            // Type-based recommendations
+            if (preferences.types.includes('movie')) {
+                if (preferences.genres.includes('action')) {
+                    recommendations.push("Mad Max: Fury Road");
+                    recommendations.push("John Wick");
+                } else if (preferences.genres.includes('comedy')) {
+                    recommendations.push("The Hangover");
+                    recommendations.push("Superbad");
+                } else if (preferences.genres.includes('drama')) {
+                    recommendations.push("The Shawshank Redemption");
+                    recommendations.push("The Godfather");
+                } else if (preferences.genres.includes('horror')) {
+                    recommendations.push("Get Out");
+                    recommendations.push("A Quiet Place");
+                } else {
+                    recommendations.push("Inception");
+                    recommendations.push("The Dark Knight");
+                }
+            }
+            
+            if (preferences.types.includes('series')) {
+                if (preferences.genres.includes('drama')) {
+                    recommendations.push("Breaking Bad");
+                    recommendations.push("The Wire");
+                } else if (preferences.genres.includes('comedy')) {
+                    recommendations.push("The Office");
+                    recommendations.push("Parks and Recreation");
+                } else if (preferences.genres.includes('action')) {
+                    recommendations.push("Game of Thrones");
+                    recommendations.push("The Boys");
+                } else {
+                    recommendations.push("Stranger Things");
+                    recommendations.push("The Crown");
+                }
+            }
+            
+            if (preferences.types.includes('game')) {
+                recommendations.push("The Last of Us");
+                recommendations.push("Red Dead Redemption 2");
+                recommendations.push("God of War");
+            }
+            
+            if (preferences.types.includes('music')) {
+                recommendations.push("Spotify Premium for ad-free listening");
+                recommendations.push("Apple Music for high-quality streaming");
+            }
+            
+            // Platform-based recommendations
+            if (preferences.platforms.includes('netflix')) {
+                recommendations.push("Netflix Original: The Witcher");
+                recommendations.push("Netflix Original: Money Heist");
+            }
+            
+            if (preferences.platforms.includes('amazon')) {
+                recommendations.push("Amazon Original: The Boys");
+                recommendations.push("Amazon Original: The Marvelous Mrs. Maisel");
+            }
+            
+            // Remove duplicates and limit to 3 recommendations
+            return [...new Set(recommendations)].slice(0, 3);
+        }
+
+        // Travel preference detection
+        function detectTravelPreferences(taskTexts) {
+            const preferences = {
+                destinations: [],
+                activities: [],
+                budget: 'medium',
+                duration: 'medium'
+            };
+            
+            // Destination detection
+            const destinations = {
+                beach: ['beach', 'ocean', 'sea', 'coast', 'tropical', 'island'],
+                mountain: ['mountain', 'hiking', 'trail', 'summit', 'peak', 'alpine'],
+                city: ['city', 'urban', 'metropolis', 'downtown', 'skyline'],
+                countryside: ['countryside', 'rural', 'farm', 'village', 'country'],
+                international: ['international', 'abroad', 'foreign', 'overseas', 'trip abroad']
+            };
+            
+            for (const [destination, keywords] of Object.entries(destinations)) {
+                if (taskTexts.some(text => keywords.some(keyword => text.includes(keyword)))) {
+                    preferences.destinations.push(destination);
+                }
+            }
+            
+            // Activity detection
+            const activities = {
+                relaxation: ['relax', 'rest', 'unwind', 'chill', 'leisure'],
+                adventure: ['adventure', 'exciting', 'thrill', 'extreme', 'challenge'],
+                culture: ['culture', 'museum', 'art', 'history', 'heritage', 'traditional'],
+                food: ['food', 'cuisine', 'restaurant', 'dining', 'culinary', 'gastronomy']
+            };
+            
+            for (const [activity, keywords] of Object.entries(activities)) {
+                if (taskTexts.some(text => keywords.some(keyword => text.includes(keyword)))) {
+                    preferences.activities.push(activity);
+                }
+            }
+            
+            // Budget detection
+            if (taskTexts.some(text => text.includes('budget') || text.includes('cheap') || text.includes('affordable'))) {
+                preferences.budget = 'low';
+            } else if (taskTexts.some(text => text.includes('luxury') || text.includes('expensive') || text.includes('high-end'))) {
+                preferences.budget = 'high';
+            }
+            
+            // Duration detection
+            if (taskTexts.some(text => text.includes('short') || text.includes('weekend') || text.includes('day trip'))) {
+                preferences.duration = 'short';
+            } else if (taskTexts.some(text => text.includes('long') || text.includes('extended') || text.includes('month'))) {
+                preferences.duration = 'long';
+            }
+            
+            return preferences;
+        }
+
+        // Get travel recommendations
+        function getTravelRecommendations(preferences) {
+            const recommendations = [];
+            
+            // If no specific preferences, provide general recommendations
+            if (preferences.destinations.length === 0 && preferences.activities.length === 0) {
+                return [
+                    "Weekend getaway to a nearby city",
+                    "Day trip to a local attraction",
+                    "Staycation with new activities"
+                ];
+            }
+            
+            // Destination-based recommendations
+            if (preferences.destinations.includes('beach')) {
+                if (preferences.budget === 'low') {
+                    recommendations.push("Local beach day trip");
+                } else if (preferences.budget === 'high') {
+                    recommendations.push("Luxury resort in the Maldives");
+                } else {
+                    recommendations.push("Beach vacation in Florida or California");
+                }
+            }
+            
+            if (preferences.destinations.includes('mountain')) {
+                if (preferences.activities.includes('adventure')) {
+                    recommendations.push("Hiking trip to national parks");
+                } else {
+                    recommendations.push("Mountain retreat with scenic views");
+                }
+            }
+            
+            if (preferences.destinations.includes('city')) {
+                if (preferences.activities.includes('culture')) {
+                    recommendations.push("Cultural city break to museums and galleries");
+                } else {
+                    recommendations.push("Urban exploration in a vibrant city");
+                }
+            }
+            
+            if (preferences.destinations.includes('countryside')) {
+                recommendations.push("Rural escape to a countryside cottage");
+            }
+            
+            if (preferences.destinations.includes('international')) {
+                if (preferences.budget === 'low') {
+                    recommendations.push("Budget-friendly international destination like Thailand or Portugal");
+                } else if (preferences.budget === 'high') {
+                    recommendations.push("Luxury international trip to Japan or Switzerland");
+                } else {
+                    recommendations.push("International trip to popular destinations like Italy or Spain");
+                }
+            }
+            
+            // Activity-based recommendations
+            if (preferences.activities.includes('relaxation')) {
+                recommendations.push("Spa weekend getaway");
+                recommendations.push("Relaxing beach vacation");
+            }
+            
+            if (preferences.activities.includes('adventure')) {
+                recommendations.push("Adventure sports destination");
+                recommendations.push("Wilderness exploration trip");
+            }
+            
+            if (preferences.activities.includes('culture')) {
+                recommendations.push("Cultural heritage tour");
+                recommendations.push("Art and history focused trip");
+            }
+            
+            if (preferences.activities.includes('food')) {
+                recommendations.push("Culinary tour to a food destination");
+                recommendations.push("Wine tasting trip");
+            }
+            
+            // Duration-based recommendations
+            if (preferences.duration === 'short') {
+                recommendations.push("Weekend getaway to a nearby destination");
+            } else if (preferences.duration === 'long') {
+                recommendations.push("Extended vacation to multiple destinations");
+            }
+            
+            // Remove duplicates and limit to 3 recommendations
+            return [...new Set(recommendations)].slice(0, 3);
+        }
+
+        // Get study topic recommendations
+        function getStudyTopicRecommendations(topic) {
+            const recommendations = {
+                'deep learning': {
+                    prerequisites: [
+                        'Linear Algebra fundamentals',
+                        'Python programming',
+                        'Basic statistics and probability'
+                    ],
+                    startingPoints: [
+                        'Neural Networks basics',
+                        'TensorFlow or PyTorch frameworks',
+                        'Supervised Learning concepts'
+                    ],
+                    resources: [
+                        'Coursera Deep Learning Specialization',
+                        'Fast.ai course',
+                        'Deep Learning book by Ian Goodfellow'
+                    ],
+                    projects: [
+                        'Image classification project',
+                        'Natural Language Processing task',
+                        'Simple neural network implementation'
+                    ]
+                },
+                'machine learning': {
+                    prerequisites: [
+                        'Statistics and Probability',
+                        'Python programming',
+                        'Basic calculus'
+                    ],
+                    startingPoints: [
+                        'Supervised vs Unsupervised Learning',
+                        'Basic algorithms (Linear Regression, Decision Trees)',
+                        'Scikit-learn library'
+                    ],
+                    resources: [
+                        'Andrew Ng\'s Machine Learning course',
+                        'Python Machine Learning by Sebastian Raschka',
+                        'Kaggle tutorials'
+                    ],
+                    projects: [
+                        'Data classification project',
+                        'Regression analysis',
+                        'Clustering exercise'
+                    ]
+                },
+                'web development': {
+                    prerequisites: [
+                        'HTML and CSS basics',
+                        'JavaScript fundamentals',
+                        'Basic command line usage'
+                    ],
+                    startingPoints: [
+                        'Frontend basics (HTML, CSS, JavaScript)',
+                        'Responsive design principles',
+                        'Basic backend concepts'
+                    ],
+                    resources: [
+                        'freeCodeCamp curriculum',
+                        'MDN Web Docs',
+                        'The Odin Project'
+                    ],
+                    projects: [
+                        'Personal portfolio website',
+                        'Simple todo application',
+                        'Responsive landing page'
+                    ]
+                }
+            };
+
+            // Add study topic detection to analyzeTask function
+            if (recommendations[topic.toLowerCase()]) {
+                const rec = recommendations[topic.toLowerCase()];
+                return {
+                    type: 'study',
+                    message: `Here's your learning path for ${topic}:\n` +
+                            `Prerequisites: ${rec.prerequisites.join(', ')}\n` +
+                            `Start with: ${rec.startingPoints.join(', ')}\n` +
+                            `Recommended resources: ${rec.resources.join(', ')}\n` +
+                            `Practice projects: ${rec.projects.join(', ')}`
+                };
+            }
+            return null;
+        }
+
+        // Get specific travel recommendations
+        function getSpecificTravelRecommendations(destination) {
+            const recommendations = {
+                'kerala beaches': {
+                    destinations: [
+                        'Varkala Beach - Known for cliff-side views and water sports',
+                        'Kovalam Beach - Perfect for sunbathing and ayurvedic treatments',
+                        'Marari Beach - Quiet and pristine with fewer tourists',
+                        'Bekal Beach - Historic fort and golden sands'
+                    ],
+                    bestTimeToVisit: 'October to February (avoiding monsoon season)',
+                    activities: [
+                        'Ayurvedic spa treatments',
+                        'Water sports at Kovalam',
+                        'Sunset watching at Varkala cliff',
+                        'Fresh seafood dining',
+                        'Houseboat tours in nearby backwaters'
+                    ],
+                    accommodation: [
+                        'Luxury beach resorts',
+                        'Boutique heritage hotels',
+                        'Beachside cottages',
+                        'Homestays with local families'
+                    ],
+                    tips: [
+                        'Book accommodations in advance during peak season',
+                        'Respect local customs and dress modestly',
+                        'Try local Kerala cuisine',
+                        'Combine beach visit with backwater tours'
+                    ]
+                },
+                'goa beaches': {
+                    destinations: [
+                        'Calangute Beach - Popular and lively',
+                        'Palolem Beach - Scenic and peaceful',
+                        'Baga Beach - Water sports and nightlife',
+                        'Anjuna Beach - Famous for flea markets'
+                    ],
+                    bestTimeToVisit: 'November to February',
+                    activities: [
+                        'Water sports and parasailing',
+                        'Beach shack dining',
+                        'Nightlife and parties',
+                        'Flea market shopping',
+                        'Old Goa church visits'
+                    ],
+                    accommodation: [
+                        'Beach resorts',
+                        'Budget hostels',
+                        'Beach huts',
+                        'Luxury hotels'
+                    ],
+                    tips: [
+                        'Book in advance for peak season',
+                        'Rent a scooter for easy travel',
+                        'Visit during off-peak for better rates',
+                        'Try local Goan cuisine'
+                    ]
+                }
+            };
+
+            // Add more destinations as needed
+            if (recommendations[destination.toLowerCase()]) {
+                const rec = recommendations[destination.toLowerCase()];
+                return {
+                    type: 'travel',
+                    message: `Travel Guide for ${destination}:\n` +
+                            `Best Time to Visit: ${rec.bestTimeToVisit}\n` +
+                            `Top Destinations: ${rec.destinations.join(', ')}\n` +
+                            `Recommended Activities: ${rec.activities.join(', ')}\n` +
+                            `Accommodation Options: ${rec.accommodation.join(', ')}\n` +
+                            `Travel Tips: ${rec.tips.join(', ')}`
+                };
+            }
+            return null;
+        }
+
+        // Update analyzeTask function to include specific travel recommendations
+        async function analyzeTask(index, text) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            const lowerText = text.toLowerCase();
+            let category = "General";
+            let recommendation = "";
+
+            // Check for specific travel destinations
+            if (lowerText.includes('beach') || lowerText.includes('visit') || lowerText.includes('travel')) {
+                for (const destination of ['kerala beaches', 'goa beaches']) {
+                    if (lowerText.includes(destination.split(' ')[0].toLowerCase())) {
+                        const travelRec = getSpecificTravelRecommendations(destination);
+                        if (travelRec) {
+                            category = "Travel";
+                            recommendation = travelRec.message;
+                        }
+                    }
+                }
+            }
+
+            // Check for study-related tasks
+            if (lowerText.includes('study') || lowerText.includes('learn') || lowerText.includes('start')) {
+                for (const topic of ['deep learning', 'machine learning', 'web development']) {
+                    if (lowerText.includes(topic)) {
+                        const studyRec = getStudyTopicRecommendations(topic);
+                        if (studyRec) {
+                            category = "Study";
+                            recommendation = studyRec.message;
+                        }
+                    }
+                }
+            }
+
+            // Enhanced category detection
+            if (lowerText.includes('work') || lowerText.includes('meeting') || lowerText.includes('project')) {
+                category = "Work";
+                recommendation = "Consider setting up reminders for this work task.";
+            } else if (lowerText.includes('health')) {
+                category = "Health";
+                recommendation = "Remember to track your progress on this health goal.";
+            } else if (lowerText.includes('shopping') || lowerText.includes('home') || lowerText.includes('personal')) {
+                category = "Personal";
+                recommendation = "Add any related personal tasks you might need to complete alongside this.";
+            } else if (lowerText.includes('read') || lowerText.includes('book') || lowerText.includes('novel')) {
+                category = "Reading";
+                const readingPreferences = detectReadingPreferences([lowerText]);
+                const bookRecommendations = getBookRecommendations(readingPreferences);
+                recommendation = `Based on your interest in reading, I recommend: ${bookRecommendations.join(', ')}`;
+            } else if (lowerText.includes('movie') || lowerText.includes('film') || lowerText.includes('watch')) {
+                category = "Entertainment";
+                const entertainmentPreferences = detectEntertainmentPreferences([lowerText]);
+                const entertainmentRecommendations = getEntertainmentRecommendations(entertainmentPreferences);
+                recommendation = `For entertainment, you might enjoy: ${entertainmentRecommendations.join(', ')}`;
+            } else if (lowerText.includes('travel') || lowerText.includes('trip') || lowerText.includes('vacation')) {
+                category = "Travel";
+                const travelPreferences = detectTravelPreferences([lowerText]);
+                const travelRecommendations = getTravelRecommendations(travelPreferences);
+                recommendation = `For your travel plans, consider: ${travelRecommendations.join(', ')}`;
+            }
+
+            // Add priority-based recommendations
+            const priority = tasks[index].priority || "low";
+            switch(priority) {
+                case 'high':
+                    recommendation = "This is a high-priority task! " + recommendation;
+                    break;
+                case 'medium':
+                    recommendation = "This is a medium-priority task. " + recommendation;
+                    break;
+                case 'low':
+                    recommendation = "This is a lower-priority task. " + recommendation;
+                    break;
+            }
+
+            tasks[index].category = category;
+            tasks[index].aiRecommendation = recommendation;
+            renderTasks();
+        }
+
+        function renderTasks() {
+            const taskList = document.getElementById('taskList');
+            taskList.innerHTML = '';
+                // Show/hide AI summary based on currentView
+            const aiSummary = document.getElementById('aiSummary');
+            if (currentView === 'my-day') {
+            aiSummary.style.display = 'block';
+            updateAIRecommendations();
+            } 
+            else {
+            aiSummary.style.display = 'none';
+             }
+
+            let filteredTasks = tasks;
+            switch(currentView) {
+                case 'my-day':
+                    filteredTasks = tasks.filter(t => t.myDay);
+                    break;
+                case 'important':
+                    filteredTasks = tasks.filter(t => t.important);
+                    break;
+                case 'planned':
+                    filteredTasks = tasks.filter(t => t.dueDate);
+                    break;
+            }
+
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const filterStatus = document.getElementById('filterStatus').value;
+
+            filteredTasks = filteredTasks.filter(task => 
+                task.text.toLowerCase().includes(searchText) ||
+                (task.tags && task.tags.some(tag => tag.toLowerCase().includes(searchText)))
+            );
+
+            if (filterStatus === 'completed') filteredTasks = filteredTasks.filter(t => t.completed);
+            if (filterStatus === 'incomplete') filteredTasks = filteredTasks.filter(t => !t.completed);
+
+            filteredTasks.forEach(task => {
+                const li = document.createElement('li');
+                li.className = 'task-item';
+                li.innerHTML = `
+                    <div class="task-checkbox ${task.completed ? 'checked' : ''}" onclick="toggleTask(${task.id})"></div>
+                    <div class="task-content">
+                        <div class="task-text ${task.completed ? 'completed' : ''}">
+                          <b> ${task.text}</b>
+                            <span class="category-tag category-${task.category?.toLowerCase() || 'general'}">${task.category || 'General'}</span>
+                            <span class="priority-${task.priority}">${task.priority}</span>
+                        </div>
+                        <div class="task-meta">
+                            ${task.dueDate ? `<span><i class="far fa-calendar"></i>${new Date(task.dueDate).toLocaleDateString()}</span>` : ''}
+                            ${task.aiRecommendation ? `<div class="ai-recommendation"><i class="fas fa-lightbulb"></i> ${task.aiRecommendation}</div>` : ''}
+                        </div>
+                    </div>
+                    <div class="task-indicators">
+                        ${task.important ? '<div class="task-indicator indicator-important"></div>' : ''}
+                        ${task.myDay ? '<div class="task-indicator indicator-my-day"></div>' : ''}
+                    </div>
+                    <div class="task-actions">
+                        <button class="task-action-btn" onclick="toggleImportant(${task.id})">
+                            <i class="fas fa-star ${task.important ? 'text-warning' : ''}"></i>
+                        </button>
+                        <button class="task-action-btn" onclick="toggleMyDay(${task.id})">
+                            <i class="fas fa-sun ${task.myDay ? 'text-warning' : ''}"></i>
+                        </button>
+                        <button class="task-action-btn" onclick="deleteTask(${task.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                taskList.appendChild(li);
+            });
+        }
+
+        // Event Listeners
+        document.getElementById('addTaskBtn').addEventListener('click', addTask);
+        document.getElementById('taskInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addTask();
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            showContainer('loginContainer');
+        });
+
+        // Reminders with browser notifications
+        function scheduleReminder(task) {
+            if (task.reminder && "Notification" in window) {
+                Notification.requestPermission().then(permission => {
+                    if (permission === "granted") {
+                        const now = new Date();
+                        const due = new Date(task.dueDate || now);
+                        const [remHour, remMin] = task.reminder.split(':');
+                        due.setHours(remHour, remMin, 0, 0);
+                        const timeout = due - now;
+                        if (timeout > 0) {
+                            setTimeout(() => {
+                                new Notification("Task Reminder", { body: task.text });
+                            }, timeout);
+                        }
+                    }
+                });
+            }
+        }
+
+        // Dark mode toggle
+        document.getElementById('toggleDarkMode').addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+        });
+
+        // Export tasks
+        document.getElementById('exportBtn').addEventListener('click', () => {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(tasks));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", "tasks.json");
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click();
+            dlAnchor.remove();
+        });
+
+        // Import tasks
+        document.getElementById('importBtn').addEventListener('click', () => {
+            document.getElementById('importInput').click();
+        });
+        document.getElementById('importInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const imported = JSON.parse(evt.target.result);
+                    if (Array.isArray(imported)) {
+                        tasks = imported;
+                        saveTasks();
+                        renderTasks();
+                    }
+                } catch (err) {
+                    alert("Invalid file format.");
+                }
+            };
+            reader.readAsText(file);
+        });
+    </script>
+</body>
+</html> 
+if (suggestions.length > 0) {
+    aiSummary.innerHTML = `<b>AI Recommendations:</b><ul style="margin-top:8px;">${suggestions.map(s => `<li>${s}</li>`).join('')}</ul>`;
+} else {
+    aiSummary.innerHTML = "No AI recommendations available.";
+}
